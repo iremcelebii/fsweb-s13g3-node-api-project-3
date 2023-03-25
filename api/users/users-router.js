@@ -14,7 +14,6 @@ router.get("/", async (req, res) => {
     const users = await userModel.get();
     res.json(users);
   } catch (err) {
-    // res.status(500).json({ message: "işlem yapılamadı" });
     next(err);
   }
 });
@@ -22,8 +21,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", validateUserId, (req, res, next) => {
   try {
     res.json(req.user);
-  } catch {
-    // res.status(500).json({ message: "işlem yapılamadı" });
+  } catch (err) {
     next(err);
   }
 });
@@ -33,7 +31,6 @@ router.post("/", validateUser, async (req, res) => {
     const insertedUser = await userModel.insert(req.user);
     res.status(201).json(insertedUser);
   } catch (err) {
-    // res.status(500).json({ message: "işlem yapılamadı" });
     next(err);
   }
 });
@@ -44,9 +41,8 @@ router.put("/:id", validateUserId, validateUser, async (req, res, next) => {
     await userModel.update(req.params.id, req.user);
     const updatedUser = await userModel.getById(req.params.id);
     res.json(updatedUser);
-  } catch {
-    res.status(500).json({ message: "işlem yapılamadı" });
-    // next(err);
+  } catch (err) {
+    next(err);
   }
 });
 
@@ -57,8 +53,7 @@ router.delete("/:id", validateUserId, async (req, res) => {
     const silinenUser = await userModel.getById(req.params.id);
     await userModel.remove(req.params.id);
     res.status(201).json(silinenUser);
-  } catch {
-    // res.status(500).json({ message: "işlem yapılamadı" });
+  } catch (err) {
     next(err);
   }
 });
@@ -69,8 +64,7 @@ router.get("/:id/posts", validateUserId, async (req, res) => {
   try {
     const userPost = await userModel.getUserPosts(req.params.id);
     res.json(userPost);
-  } catch {
-    // res.status(500).json({ message: "işlem yapılamadı" });
+  } catch (err) {
     next(err);
   }
 });
@@ -85,7 +79,6 @@ router.post("/:id/posts", validateUserId, validatePost, async (req, res) => {
     });
     res.status(201).json(insertedPost);
   } catch (err) {
-    // res.status(500).json({ message: "işlem yapılamadı" });
     next(err);
   }
 });

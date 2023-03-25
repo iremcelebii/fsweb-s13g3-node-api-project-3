@@ -17,6 +17,6 @@ server.use((req, res, next) => {
 });
 
 server.use((err, req, res, next) => {
-  res.status(500).json({ message: "işlem yapılamadı" });
+  res.status(500).json({ message: "işlem yapılamadıııı", error: err });
 });
 module.exports = server;
