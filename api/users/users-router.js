@@ -1,44 +1,94 @@
-const express = require('express');
+const userModel = require("./users-model");
+const postModel = require("../posts/posts-model");
+const {
+  validateUserId,
+  validateUser,
+  validatePost,
+} = require("../middleware/middleware");
 
-// `users-model.js` ve `posts-model.js` sayfalarına ihtiyacınız var
-// ara yazılım fonksiyonları da gereklidir
-
+const express = require("express");
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // TÜM KULLANICILARI İÇEREN DİZİYİ DÖNDÜRÜN
+router.get("/", async (req, res) => {
+  try {
+    const users = await userModel.get();
+    res.json(users);
+  } catch (err) {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
-router.get('/:id', (req, res) => {
-  // USER NESNESİNİ DÖNDÜRÜN
-  // user id yi getirmek için bir ara yazılım gereklidir
+router.get("/:id", validateUserId, (req, res, next) => {
+  try {
+    res.json(req.user);
+  } catch {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
-router.post('/', (req, res) => {
-  // YENİ OLUŞTURULAN USER NESNESİNİ DÖNDÜRÜN
-  // istek gövdesini doğrulamak için ara yazılım gereklidir.
+router.post("/", validateUser, async (req, res) => {
+  try {
+    const insertedUser = await userModel.insert(req.user);
+    res.status(201).json(insertedUser);
+  } catch (err) {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
-router.put('/:id', (req, res) => {
+router.put("/:id", validateUserId, validateUser, async (req, res, next) => {
   // YENİ GÜNCELLENEN USER NESNESİNİ DÖNDÜRÜN
-  // user id yi doğrulayan ara yazılım gereklidir
-  // ve istek gövdesini doğrulayan bir ara yazılım gereklidir.
+  try {
+    await userModel.update(req.params.id, req.user);
+    const updatedUser = await userModel.getById(req.params.id);
+    res.json(updatedUser);
+  } catch {
+    res.status(500).json({ message: "işlem yapılamadı" });
+    // next(err);
+  }
 });
 
-router.delete('/:id', (req, res) => {
+router.delete("/:id", validateUserId, async (req, res) => {
   // SON SİLİNEN USER NESNESİ DÖNDÜRÜN
-  // user id yi doğrulayan bir ara yazılım gereklidir.
+
+  try {
+    const silinenUser = await userModel.getById(req.params.id);
+    await userModel.remove(req.params.id);
+    res.status(201).json(silinenUser);
+  } catch {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
-router.get('/:id/posts', (req, res) => {
+router.get("/:id/posts", validateUserId, async (req, res) => {
   // USER POSTLARINI İÇEREN BİR DİZİ DÖNDÜRÜN
-  // user id yi doğrulayan bir ara yazılım gereklidir.
+
+  try {
+    const userPost = await userModel.getUserPosts(req.params.id);
+    res.json(userPost);
+  } catch {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post("/:id/posts", validateUserId, validatePost, async (req, res) => {
   // YENİ OLUŞTURULAN KULLANICI NESNESİNİ DÖNDÜRÜN
-  // user id yi doğrulayan bir ara yazılım gereklidir.
-  // ve istek gövdesini doğrulayan bir ara yazılım gereklidir.
+
+  try {
+    const insertedPost = await postModel.insert({
+      user_id: req.params.id,
+      text: req.post.text,
+    });
+    res.status(201).json(insertedPost);
+  } catch (err) {
+    // res.status(500).json({ message: "işlem yapılamadı" });
+    next(err);
+  }
 });
 
 // routerı dışa aktarmayı unutmayın
+module.exports = router;
