@@ -12,6 +12,7 @@ server.use(express.json());
 
 server.use("/api/users", logger, usersRouter);
 server.get("/merhaba", (req, res) => {
+  console.log(req.url);
   res.json(process.env.MERHABA || "Merhaba...");
 });
 
