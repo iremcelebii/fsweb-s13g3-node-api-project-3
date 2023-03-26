@@ -12,7 +12,7 @@ server.use(express.json());
 
 server.use("/api/users", logger, usersRouter);
 server.get("/hello", (req, res) => {
-  res.json(process.env.MERHABA);
+  res.json(process.env.MERHABA || "Merhaba...");
 });
 
 server.use((req, res, next) => {
