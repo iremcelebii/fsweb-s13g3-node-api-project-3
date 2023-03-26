@@ -11,6 +11,9 @@ server.use(express.json());
 // global ara yazılımlar ve kullanıcı routelarının buraya bağlanması gerekir
 
 server.use("/api/users", logger, usersRouter);
+server.get("/hello", (req, res) => {
+  res.json(process.env.MERHABA);
+});
 
 server.use((req, res, next) => {
   res.status(404).send("Aradığınız adres bulunamadı");
